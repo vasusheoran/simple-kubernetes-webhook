@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    acme.com/lifespan-requested: "7"
+    skip-shard: "true"
+  name: with-shard-disabled
+  namespace: apps
+spec:
+  containers:
+    - args:
+        - sleep
+        - "3600"
+      image: busybox
+      name: lifespan-seven
+  restartPolicy: Always

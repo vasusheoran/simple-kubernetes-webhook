@@ -55,6 +55,32 @@ pod:
 	@echo "\n🚀 Deploying test pod..."
 	kubectl apply -f dev/manifests/pods/lifespan-seven.pod.yaml
 
+.PHONY: sd
+sd:
+	@echo "\n🚀 Deploying shard enabled pod..."
+	kubectl apply -f dev/manifests/pods/shard-disabled.pod.yaml
+
+.PHONY: delete-sd
+delete-sd:
+	@echo "\n🚀 Deploying shard enabled pod..."
+	kubectl delete -f dev/manifests/pods/shard-disabled.pod.yaml
+
+.PHONY: se
+se:
+	@echo "\n🚀 Deploying shard disabled pod..."
+	kubectl apply -f dev/manifests/pods/shard-enabled.pod.yaml
+
+.PHONY: delete-se
+delete-se:
+	@echo "\n🚀 Deploying shard disabled pod..."
+	kubectl delete -f dev/manifests/pods/shard-enabled.pod.yaml
+
+.PHONY: delete-shard
+delete-shard:
+	@echo "\n🚀 Deleting shard enabled/disabled pods..."
+	kubectl delete -f dev/manifests/pods/shard-disabled.pod.yaml
+	kubectl delete -f dev/manifests/pods/shard-enabled.pod.yaml
+
 .PHONY: delete-pod
 delete-pod:
 	@echo "\n♻️ Deleting test pod..."
@@ -78,7 +104,7 @@ taint:
 .PHONY: logs
 logs:
 	@echo "\n🔍 Streaming simple-kubernetes-webhook logs..."
-	kubectl logs -l app=simple-kubernetes-webhook -f
+	kubectl logs -n default -l app=simple-kubernetes-webhook -f
 
 .PHONY: delete-all
 delete-all: delete delete-config delete-pod delete-bad-pod

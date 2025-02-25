@@ -8,6 +8,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+const (
+	mwcKey = "istio.io/rev"
+)
+
 // Mutator is a container for mutation
 type Mutator struct {
 	Logger *logrus.Entry
@@ -37,11 +41,7 @@ func (m *Mutator) MutatePodPatch(pod *corev1.Pod) ([]byte, error) {
 	}
 	log := logrus.WithField("pod_name", podName)
 
-	// list of all mutations to be applied to the pod
-	mutations := []podMutator{
-		minLifespanTolerations{Logger: log},
-		injectEnv{Logger: log},
-	}
+	mutations := m.getMutations(log, pod)
 
 	mpod := pod.DeepCopy()
 
@@ -66,4 +66,23 @@ func (m *Mutator) MutatePodPatch(pod *corev1.Pod) ([]byte, error) {
 	}
 
 	return patchb, nil
+}
+
+func (m *Mutator) getMutations(logger *logrus.Entry, pod *corev1.Pod) []podMutator {
+	logger.Infof("fetching mutations for `%s`", pod.Name)
+
+	for key, value := range pod.Labels {
+		if key == mwcKey {
+			logger.Infof("found mutation `%s=%s` for pod `%s`. Adding label `simple-webhook-injection/validation=%s`.", mwcKey, value, pod.Name, mwcKey)
+			return []podMutator{
+				injectValidation{Logger: logger},
+			}
+		}
+	}
+
+	logger.Infof("injecting default shard for `%s`", pod.Name)
+	return []podMutator{
+		injectIstioRev{Logger: logger},
+	}
+
 }

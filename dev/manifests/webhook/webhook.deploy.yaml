@@ -30,6 +30,8 @@ spec:
               value: "trace"
             - name: LOG_JSON
               value: "false"
+            - name: ISTIO_REV_VALUE
+              value: test-rev
           volumeMounts:
             - name: tls
               mountPath: "/etc/admission-webhook/tls"
